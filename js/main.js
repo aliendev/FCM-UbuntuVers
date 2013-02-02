@@ -20,25 +20,46 @@ function processForm(formElement) {
     // console logging the whole element will show you the object your working with, and what you have access too. This is a great hint on figuring out what you can do directly.
     console.log(formElement);
 
-    // I like to give all my form elements their own id's to give myself access outside of the form as well as simple access inside of it
-    ubuVersNumValue = ge('ubuVersNum').value;
-    ubuVersNameValue = ge('ubuVersName').value;
-    console.log(ubuVersNumValue);
-    console.log(ubuVersNameValue);
-
-    if (ubuVersNumValue != '') {
-        var list = ge('ubuntuVersionsDisplayList'),
-            listItem = document.createElement('li'),
-            listText = ubuVersNumValue + ": " + ubuVersNameValue;
-
-        listItem.innerHTML = listText;
-        list.appendChild(listItem);
+    if ((ge('ubuVersNum').value != '') && (ge('ubuVersName').value != '')) {
+		storeData();	
+		displayData();
+    } else {
+        alert('You need to fill out both fields to add a version');
     }
 
 
     // Return false to prevent the default form behavior
     return false;
 }
+
+// store information 
+function storeData(key) {
+	// This is a little bit of future proofing 
+	if (!key) {
+		// if there is no key, this is a new item and needs a new key
+		var id = "ubuVers" + Math.floor(Math.random()*10000001);
+	} else {
+		// set the id to the existing key we are editing
+		id = key;
+	};
+	
+    // I like to give all my form elements their own id's to give myself access outside of the form as well as simple access inside of it
+    var ubuVersNumValue = ge('ubuVersNum').value,
+        ubuVersNameValue = ge('ubuVersName').value,
+		ubuVersDict = {version: ubuVersNumValue, release: ubuVersNameValue};
+    console.log(ubuVersNumValue);
+    console.log(ubuVersNameValue);
+
+	var list = ge('ubuntuVersionsDisplayList'),
+	listItem = document.createElement('li'),
+	listText = ubuVersNumValue + ": " + ubuVersNameValue;
+	
+	listItem.innerHTML = listText;
+	list.appendChild(listItem);
+
+};
+
+
 
 /*******************
 // Variables
@@ -60,4 +81,3 @@ if (form.attachEvent) { // if the browser allows for attachEvent
     // when submit is triggered, run the processForm function
     form.addEventListener("submit", processForm);
 };
-
