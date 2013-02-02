@@ -32,7 +32,8 @@ function processForm(formElement) {
     return false;
 }
 
-// store information 
+// added in part 5
+// store information in local storage
 function storeData(key) {
 	// This is a little bit of future proofing 
 	if (!key) {
@@ -56,10 +57,33 @@ function storeData(key) {
 	
 	listItem.innerHTML = listText;
 	list.appendChild(listItem);
+	
+	
+	// added in pt. 5
+	// set the item in localstorage
+	localStorage.setItem(id, ubuVersDict);
+	// log out the whole local storage
+	console.log(localStorage);
 
 };
 
-
+// added in part 5
+// display the data from local storage to screen
+function displayData() {
+	// check if localstorage has anything in it
+	if (localStorage.length === 0) {
+		alert('There is no data in Local Storage');
+	}
+	else { // there is local storage info
+		
+		// loop through each item in local storage
+		for (var i=0, j=localStorage.length; i<j; i++) {
+			alert(localStorage);
+		}
+		
+			
+	}
+};
 
 /*******************
 // Variables
@@ -81,3 +105,7 @@ if (form.attachEvent) { // if the browser allows for attachEvent
     // when submit is triggered, run the processForm function
     form.addEventListener("submit", processForm);
 };
+
+// added in part 5 
+// display the data to screen from localstorage every time the page loads
+displayData();
