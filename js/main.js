@@ -13,6 +13,7 @@ function ge(id) {
 
 // process forms
 function processForm(formElement) {
+	// prevent default operation of the forms
     if (formElement.preventDefault) { formElement.preventDefault() };
     console.log('form has been processed.');
 
@@ -20,19 +21,21 @@ function processForm(formElement) {
     // console logging the whole element will show you the object your working with, and what you have access too. This is a great hint on figuring out what you can do directly.
     console.log(formElement);
 
+	// make sure the fields were not blank
     if ((ge('ubuVersNum').value != '') && (ge('ubuVersName').value != '')) {
+		// store the data in our localStorage
 		storeData();	
+		// display the data from storage
 		displayData();
-    } else {
+    } else { // if one of the fields were blank
+		// tell the user to fill out both fields
         alert('You need to fill out both fields to add a version');
     }
-
 
     // Return false to prevent the default form behavior
     return false;
 }
 
-// added in part 5
 // store information in local storage
 function storeData(key) {
 	// This is a little bit of future proofing 
@@ -44,46 +47,110 @@ function storeData(key) {
 		id = key;
 	};
 	
-    // I like to give all my form elements their own id's to give myself access outside of the form as well as simple access inside of it
+    // I like to give all my form elements their own id's to give myself access
+	// outside of the form as well as simple access inside of it
     var ubuVersNumValue = ge('ubuVersNum').value,
         ubuVersNameValue = ge('ubuVersName').value,
 		ubuVersDict = {version: ubuVersNumValue, release: ubuVersNameValue};
+	// log out those values as a double check
     console.log(ubuVersNumValue);
-    console.log(ubuVersNameValue);
-
-	var list = ge('ubuntuVersionsDisplayList'),
-	listItem = document.createElement('li'),
-	listText = ubuVersNumValue + ": " + ubuVersNameValue;
+    console.log(ubuVersNameValue);	
 	
-	listItem.innerHTML = listText;
-	list.appendChild(listItem);
-	
-	
-	// added in pt. 5
 	// set the item in localstorage
-	localStorage.setItem(id, ubuVersDict);
+	// note the stringify function
+	localStorage.setItem(id, JSON.stringify(ubuVersDict));
+	
 	// log out the whole local storage
 	console.log(localStorage);
 
 };
 
-// added in part 5
 // display the data from local storage to screen
 function displayData() {
+	// empty out our current list 
+	ge('ubuntuVersionsDisplayList').innerHTML = "";
+	
 	// check if localstorage has anything in it
 	if (localStorage.length === 0) {
 		alert('There is no data in Local Storage');
 	}
 	else { // there is local storage info
-		
+	
 		// loop through each item in local storage
 		for (var i=0, j=localStorage.length; i<j; i++) {
-			alert(localStorage);
+			// Put the information from the localStorage row into some variables
+			var key = localStorage.key(i),
+				value = localStorage.getItem(key),
+				obj = JSON.parse(value);
+			
+			// let's check if the key for the entry starts with our ubuvers id.
+			// substring lets you grab portions of the string. 0 is the first 
+			// character, and 7 means it goes up to character 7. This will read 
+			// charachters 1-7 (u b u V e r s). Note: It doesn't read the last 
+			// character. 
+			if (key.substring(0,7) == "ubuVers") {
+				// let's check to make sure we are getting the right keys out
+				console.log(key);
+				console.log(obj);			
+				
+				// now that we have our key right. let's display the data already added
+				var list = ge('ubuntuVersionsDisplayList'),
+					listItem = document.createElement('li'),
+					ubuVersNumValue = obj.version,
+					ubuVersNameValue = obj.release,
+					listText = ubuVersNumValue + ": " + ubuVersNameValue,
+					itemDeleteButton = document.createElement('button'),
+					itemDeleteButtonText = "Remove Item";
+					
+				itemDeleteButton.setAttribute('id',key),
+				itemDeleteButton.onclick = function() {deleteItem(this.id)};
+				listItem.innerHTML = listText;
+				itemDeleteButton.innerHTML = itemDeleteButtonText;
+				listItem.appendChild(itemDeleteButton);
+				list.appendChild(listItem);
+
+			}
 		}
 		
 			
 	}
 };
+
+function deleteItem(key) {
+	// as to make sure the user wants to delete this 
+	if (window.confirm('Are you sure you would like to delete this version?')) {
+		
+		// remove the item from localStorage
+		localStorage.removeItem(key);
+		
+		// let the user know it happened
+		alert('The version was delete successfully');
+		
+		// reload the view
+		displayData();
+	}
+}
+
+function clearLocalStorage() {
+	// if localStorage is already empty
+	if (localStorage.length === 0) {
+		
+		// let the user know there is already nothing there
+		alert('There is no data in localStorage to clear');
+		
+	} else { // if localStorage is not empty
+	
+		// make sure the user really wants to clear his localStorage
+		if (window.confirm('Are you really sure you want to delete your entire localStorage')) {
+			
+			// clear local storage
+			localStorage.clear();
+			
+			// display data again
+			displayData();
+		}
+	}
+}
 
 /*******************
 // Variables
@@ -106,6 +173,7 @@ if (form.attachEvent) { // if the browser allows for attachEvent
     form.addEventListener("submit", processForm);
 };
 
-// added in part 5 
+
+
 // display the data to screen from localstorage every time the page loads
 displayData();
