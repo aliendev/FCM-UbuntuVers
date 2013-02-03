@@ -14,17 +14,19 @@ function ge(id) {
 // process forms
 function processForm(formElement) {
 	// prevent default operation of the forms
-    if (formElement.preventDefault) { formElement.preventDefault() };
+    if ( formElement.preventDefault ) { formElement.preventDefault() };
     console.log('form has been processed.');
 
     // let's console log whatever you type into the form
-    // console logging the whole element will show you the object your working with, and what you have access too. This is a great hint on figuring out what you can do directly.
+    // console logging the whole element will show you the object 
+	// you are working with, and what you have access too. This is a great 
+	// hint on figuring out what you can do directly.
     console.log(formElement);
 
 	// make sure the fields were not blank
     if ((ge('ubuVersNum').value != '') && (ge('ubuVersName').value != '')) {
 		// store the data in our localStorage
-		storeData();	
+		storeData();
 		// display the data from storage
 		displayData();
     } else { // if one of the fields were blank
@@ -32,19 +34,23 @@ function processForm(formElement) {
         alert('You need to fill out both fields to add a version');
     }
 
+	// let's clear those form fields
+	ge('ubuVersNum').value = '';
+	ge('ubuVersName').value = '';
+	
     // Return false to prevent the default form behavior
     return false;
 }
 
 // store information in local storage
-function storeData(key) {
+function storeData() {
 	// This is a little bit of future proofing 
-	if (!key) {
+	if (!submit.key) {
 		// if there is no key, this is a new item and needs a new key
 		var id = "ubuVers" + Math.floor(Math.random()*10000001);
 	} else {
 		// set the id to the existing key we are editing
-		id = key;
+		id = submit.key;
 	};
 	
     // I like to give all my form elements their own id's to give myself access
@@ -62,6 +68,8 @@ function storeData(key) {
 	
 	// log out the whole local storage
 	console.log(localStorage);
+	ge('submit').value = 'Add';
+
 
 };
 
@@ -98,15 +106,30 @@ function displayData() {
 					listItem = document.createElement('li'),
 					ubuVersNumValue = obj.version,
 					ubuVersNameValue = obj.release,
-					listText = ubuVersNumValue + ": " + ubuVersNameValue,
+					listText = ubuVersNumValue + ": " + ubuVersNameValue + ' ',
 					itemDeleteButton = document.createElement('button'),
 					itemDeleteButtonText = "Remove Item";
-					
+					itemEditButton = document.createElement('button'),
+					itemEditButtonText = "Edit Item";
+				
+				// delete button	
 				itemDeleteButton.setAttribute('id',key),
 				itemDeleteButton.onclick = function() {deleteItem(this.id)};
+				
+				// edit button
+				itemEditButton.setAttribute('id',key),
+				itemEditButton.onclick = function() {editItem(this.id)};
+				
+				// setup our buttons and list item with their text
 				listItem.innerHTML = listText;
+				itemEditButton.innerHTML = itemEditButtonText;
 				itemDeleteButton.innerHTML = itemDeleteButtonText;
+				
+				// append our buttons to the list item
+				listItem.appendChild(itemEditButton);
 				listItem.appendChild(itemDeleteButton);
+				
+				// append the list item to the list to be displayed
 				list.appendChild(listItem);
 
 			}
@@ -129,6 +152,20 @@ function deleteItem(key) {
 		// reload the view
 		displayData();
 	}
+}
+
+function editItem(key) {
+	// get the object being edited from local storage
+	var value = localStorage.getItem(key),
+		obj = JSON.parse(value);
+		
+	// populate the form with the object
+	ge('ubuVersNum').value = obj.version;
+	ge('ubuVersName').value = obj.release;
+	
+	var editButton = ge('submit');
+	editButton.value = 'Edit Version';
+	editButton.key = key;
 }
 
 function clearLocalStorage() {
@@ -155,10 +192,7 @@ function clearLocalStorage() {
 /*******************
 // Variables
 *******************/
-var form = ge('ubuVersForm'), // form contains ubuVersForm element
-    ubuVersNumValue = '';
-
-
+var form = ge('ubuVersForm');
 
 /*******************
 // Actions
@@ -172,8 +206,6 @@ if (form.attachEvent) { // if the browser allows for attachEvent
     // when submit is triggered, run the processForm function
     form.addEventListener("submit", processForm);
 };
-
-
 
 // display the data to screen from localstorage every time the page loads
 displayData();
